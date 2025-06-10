@@ -5,17 +5,52 @@ High-performance semantic segmentation using PIDNet (Pixel-level Instance Discri
 ## Quick Start
 
 ### 1. Setup
+
+#### Using pip (traditional method)
 ```bash
 # Clone and install
-git clone <repository>
-cd pidnet-segmentation
+git clone https://github.com/SahandInf/PIDNet_segmenation.git
+cd PIDNet_segmenation
 pip install -e .
+```
 
-# Or use Docker
+#### Using uv (recommended - faster)
+```bash
+# Clone the repository
+git clone https://github.com/SahandInf/PIDNet_segmenation.git
+cd PIDNet_segmenation
+
+# Create virtual environment and install dependencies
+uv venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+uv pip install -e .
+
+# Or sync from pyproject.toml directly
+uv sync
+```
+
+#### Using Docker
+```bash
 docker-compose up -d
 ```
 
-### 2. Prepare Dataset
+### 2. Quick Start with uv
+
+```bash
+# Activate environment
+source .venv/bin/activate
+
+# Run training
+uv run python train.py
+
+# Run inference
+uv run python inference.py --image path/to/image.jpg
+
+# Or without activation
+uv run train.py
+```
+
+### 3. Prepare Dataset
 ```
 datasets/your_dataset/
 ├── train/
@@ -29,11 +64,11 @@ datasets/your_dataset/
     └── masks/
 ```
 
-### 3. Configure
+### 4. Configure
 Edit `config.yaml`:
 ```yaml
 model:
-  name: "pidnet-l"      # pidnet-s, pidnet-m, or pidnet-l
+  name: "pidnet-l"      # pidnet-s, pidnet-m, or pidnet-l downloadeable here: https://github.com/XuJiacong/PIDNet
   out_channels: 1       # Number of classes
 
 data:
@@ -46,7 +81,7 @@ training:
   epochs: 100
 ```
 
-### 4. Train
+### 5. Train
 ```bash
 python train.py --config config.yaml --name my_experiment
 
@@ -54,7 +89,7 @@ python train.py --config config.yaml --name my_experiment
 tensorboard --logdir logs/
 ```
 
-### 5. Inference
+### 6. Inference
 
 **Single/Batch inference with visualizations:**
 ```bash
@@ -103,22 +138,10 @@ python model_validation.py config.yaml
 ## Output Structure
 
 ```
-inference_results/
+predictions/
 ├── masks/                    # High-quality segmentation masks
 ├── visualizations/           # Optional visualizations
 ├── inference_report.html     # Detailed report
 └── config.json              # Used configuration
 ```
 
-## Tips
-
-1. **For best quality**: Keep `preserve_aspect_ratio: true` in config
-2. **For speed**: Use `bulk_inference_only.py` with larger batch sizes
-3. **For visualization**: Generate them separately after inference to save time
-4. **For large datasets**: Use `--recursive` flag and increase workers
-
-## Troubleshooting
-
-- **Pixelated masks**: Ensure you're using the latest scripts with padding fix
-- **Out of memory**: Reduce batch_size or image size
-- **Slow inference**: Enable mixed precision with `--no_amp` flag removed
