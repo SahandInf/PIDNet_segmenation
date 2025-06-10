@@ -67,18 +67,45 @@ datasets/your_dataset/
 ### 4. Configure
 Edit `config.yaml`:
 ```yaml
+# Model Configuration
 model:
-  name: "pidnet-l"      # pidnet-s, pidnet-m, or pidnet-l downloadeable here: https://github.com/XuJiacong/PIDNet
-  out_channels: 1       # Number of classes
+  name: "pidnet-l"      # pidnet-s, pidnet-m, or pidnet-l (download from https://github.com/XuJiacong/PIDNet)
+  in_channels: 3        # Number of input channels
+  out_channels: 1       # Number of output channels (classes)
+  weights_dir: "pretrained_models/imagenet"
 
-data:
-  dataset_name: 'your_dataset'
-  img_size: [160, 416]  # [height, width]
-  preserve_aspect_ratio: true
-
+# Training Configuration
 training:
   batch_size: 8
+  learning_rate: 0.0001
   epochs: 100
+  early_stopping_patience: 20
+  checkpoint_dir: 'checkpoints/'
+  log_dir: 'logs/'
+
+# Data Configuration
+data:
+  dataset_name: 'your_dataset'
+  datasets_root: 'datasets/'
+  img_size: [320, 128]  # [height, width]
+  preserve_aspect_ratio: true
+  num_workers: 8
+
+# Inference Configuration
+inference:
+  checkpoint_path: 'path/to/best_model.ckpt'  # Will use latest if not specified
+  output_dir: 'predictions/'
+  
+  # Performance Settings (optimized for RTX 4060 Ti)
+  batch_size: 64        # Higher batch size for faster inference
+  num_workers: 8
+  mixed_precision: true # Enable AMP for speed boost
+  
+  # Output Settings
+  save_visualizations: true
+  save_masks: true
+  save_report: true
+  visualization_dpi: 200  # Lower DPI for faster saving
 ```
 
 ### 5. Train
@@ -93,11 +120,16 @@ tensorboard --logdir logs/
 
 **Single/Batch inference with visualizations:**
 ```bash
+# Uses inference config from config.yaml
 python inference.py --config config.yaml --dir path/to/images
+
+# Override specific settings
+python inference.py --config config.yaml --dir path/to/images --batch_size 32
 ```
 
 **High-speed bulk inference (masks only):**
 ```bash
+# Automatically uses optimized settings from inference config
 python bulk_inference_only.py --config config.yaml --dir path/to/images --recursive
 ```
 
@@ -114,15 +146,30 @@ python generate_visualizations.py --dir inference_results/run_dir --image_dir pa
 
 - **High-quality output**: Proper padding handling preserves mask quality at original resolution
 - **Flexible inference**: Single images, directories, or massive datasets
-- **Performance optimized**: Multi-threading, mixed precision, batch processing
+- **Performance optimized**: Configurable batch processing, multi-threading, mixed precision
 - **Comprehensive reports**: HTML visualizations, metrics, and analysis
 - **Docker support**: GPU-enabled container with TensorBoard
 
+## Inference Configuration Details
+
+The `inference` section in `config.yaml` controls behavior during inference:
+
+- **checkpoint_path**: Path to trained model (auto-finds latest if not specified)
+- **output_dir**: Where to save results
+- **batch_size**: Higher values = faster processing (adjust based on GPU memory)
+- **mixed_precision**: Enable for ~2x speedup on modern GPUs
+- **save_visualizations**: Toggle visualization generation (disable for speed)
+- **visualization_dpi**: Lower values = faster saving
+
 ## Common Tasks
 
-**Process large dataset:**
+**Process large dataset with custom settings:**
 ```bash
-python bulk_inference_only.py --config config.yaml --dir /data/images --batch_size 16 --workers 8
+# Override config settings via command line
+python bulk_inference_only.py --config config.yaml \
+  --dir /data/images \
+  --batch_size 128 \
+  --workers 16
 ```
 
 **Create mixed dataset:**
@@ -144,4 +191,3 @@ predictions/
 ├── inference_report.html     # Detailed report
 └── config.json              # Used configuration
 ```
-
