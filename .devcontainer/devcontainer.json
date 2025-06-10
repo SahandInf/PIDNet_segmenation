@@ -1,0 +1,51 @@
+{
+    "name": "PIDNet Development",
+    "dockerComposeFile": "../docker-compose.yml",
+    "service": "pidnet-segmentation",
+    "workspaceFolder": "/app",
+    
+    // Configure VS Code settings
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "python.defaultInterpreterPath": "/opt/conda/bin/python",
+                "python.linting.enabled": true,
+                "python.linting.pylintEnabled": false,
+                "python.linting.flake8Enabled": true,
+                "python.formatting.provider": "black",
+                "terminal.integrated.shell.linux": "/bin/bash"
+            },
+            
+            // Install useful extensions
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-toolsai.jupyter",
+                "ms-vscode.vscode-json",
+                "redhat.vscode-yaml",
+                "ms-vscode-remote.remote-containers",
+                "ms-vscode.vscode-docker"
+            ]
+        }
+    },
+    
+    // Use root user to avoid permission issues
+    "remoteUser": "root",
+    
+    // Forward ports
+    "forwardPorts": [6006, 6007],
+    "portsAttributes": {
+        "6006": {
+            "label": "TensorBoard (Internal)"
+        },
+        "6007": {
+            "label": "TensorBoard (External)"
+        }
+    },
+    
+    // Post-create command to set up environment
+    "postCreateCommand": "echo 'PIDNet development environment ready!'",
+    
+    // Keep container running
+    "overrideCommand": false
+}

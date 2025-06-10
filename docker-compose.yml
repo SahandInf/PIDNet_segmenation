@@ -1,0 +1,67 @@
+services:
+  pidnet-segmentation:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - CUDA_VERSION=12.6
+        - USER_ID=${USER_ID:-1000}
+        - GROUP_ID=${GROUP_ID:-1000}
+    image: pidnet-segmentation:latest
+    container_name: pidnet-segmentation
+    stdin_open: true
+    tty: true
+    user: "${USER_ID:-1000}:${GROUP_ID:-1000}"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - PYTHONPATH=/app
+      - TORCH_HOME=/app/cache/torch
+      - UV_SYSTEM_PYTHON=1
+      - SHELL=/bin/bash
+    volumes:
+      # Mount the entire project directory
+      - .:/app
+      # Mount datasets directory with read-only access
+      - ./datasets:/app/datasets:ro
+      # Mount outputs directories
+      - ./logs:/app/logs
+      - ./checkpoints:/app/checkpoints
+      - ./predictions:/app/predictions
+      # Mount pretrained models
+      - ./pretrained_models:/app/pretrained_models:ro
+      # Cache directories
+      - pidnet_torch_cache:/app/cache/torch
+    working_dir: /app
+    ports:
+      - "6006:6006"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks:
+      - pidnet-network
+
+  tensorboard:
+    image: tensorflow/tensorflow:latest-gpu
+    container_name: pidnet-tensorboard
+    ports:
+      - "6007:6006"
+    volumes:
+      - ./logs:/logs:ro
+    command: tensorboard --logdir=/logs --host=0.0.0.0 --port=6006
+    depends_on:
+      - pidnet-segmentation
+    networks:
+      - pidnet-network
+
+volumes:
+  pidnet_torch_cache:
+    driver: local
+
+networks:
+  pidnet-network:
+    driver: bridge

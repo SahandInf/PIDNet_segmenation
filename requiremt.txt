@@ -1,0 +1,1 @@
+pip install torch torchvision pytorch-lightning matplotlib Pillow pyyaml pandas seaborn tqdm scikit-learn tensorboard scipy

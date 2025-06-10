@@ -1,0 +1,24 @@
+# Create a properly formatted .gitignore
+cat > .gitignore << 'EOF'
+predictions/
+logs/
+datasets/
+*.pth.tar
+experimental_scripts/
+Pipfile*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python-version
+
+# Package managers
+uv.lock
+
+# Project specific
+overlay_diagnostic.py
+gpu_optimizer.py
+debug_mask_viz.py
+create_mixed_dataset.py

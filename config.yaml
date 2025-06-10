@@ -1,0 +1,44 @@
+# Model Configuration
+model:
+  name: "pidnet-l"       # Model type: pidnet-s, pidnet-m, or pidnet-l
+  in_channels: 3         # Number of input channels
+  out_channels: 1        # Number of output channels (number of classes for segmentation)
+  weights_dir: "pretrained_models/imagenet"  # Directory containing pre-trained weights
+
+# Training Configuration
+training:
+  batch_size: 8
+  learning_rate: 0.0001
+  weight_decay: 1e-4
+  epochs: 100
+  early_stopping_patience: 20
+  checkpoint_dir: 'checkpoints/'
+  log_dir: 'logs/'
+  scheduler: 'cosine'
+  save_top_k: 3
+  gradient_clip_val: 1.0
+
+# Data Configuration
+data:
+  dataset_name: 'mixed-up'
+  datasets_root: 'datasets/'
+  img_size: [320, 128]   # Target image size [height, width]
+  preserve_aspect_ratio: true
+  num_workers: 8
+  pin_memory: true
+
+# Inference Configuration
+inference:
+  checkpoint_path: 'logs/pidnet_segmentation_20250530_171440/best_model.ckpt'
+  output_dir: 'predictions/'
+  
+  # Performance Settings (optimized for RTX 4060 Ti)
+  batch_size: 64         
+  num_workers: 8         
+  mixed_precision: true  # Enable AMP for speed boost
+  
+  # Output Settings
+  save_visualizations: true
+  save_masks: true
+  save_report: true
+  visualization_dpi: 100  # Lower DPI for faster saving

@@ -1,0 +1,45 @@
+[project]
+name = "pidnet-mermec-clean"
+version = "0.1.0"
+description = "PIDNet segmentation model for railway infrastructure analysis"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    # Core ML/DL frameworks
+    "torch",
+    "torchvision", 
+    "pytorch-lightning",
+    
+    # Data Science and Visualization
+    "matplotlib",
+    "pandas", 
+    "seaborn",
+    "scikit-learn",
+    "scipy",
+    
+    # Image Processing
+    "pillow",
+    
+    # Configuration and Utilities
+    "pyyaml",
+    "tqdm",
+    
+    # Logging and Monitoring
+    "tensorboard",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+
+[project.scripts]
+train = "train:main"
+inference = "inference:main" 
+bulk-inference = "bulk_inference:main"
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
